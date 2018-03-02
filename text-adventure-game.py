@@ -2,31 +2,49 @@
 class Animate:
 
     ##Constructor for Animate, sets inherited properties of the method
-    def __init__(self, name, currentRoom, hitPoints):
+    def __init__(self, name, currentRoom, hitPoints, weapon, armour):
         self.name = name
         self.currentRoom = currentRoom
         self.hitPoints = hitPoints
+        self.weapon = weapon
+        self.armour = armour
+        self.armourProtection = self.getArmourProtection(armour)
 
     ##All Animate objects have a way of attacking
     def attack(self):
-        print("Attack")
+        self.defending = True
+        self.target.takeDamage(self.weapon.getDamage())
 
     ##All Animate objects have a way of defending
     def defend(self):
-        print("Defend")
+        self.defending = True
 
     ##All Animate objects have a way of running
     def run(self):
         print("run")
+        self.defending = False
 
     #All Animate objects must be able to take damage
-    def takeDamage(self, hitPoints):
-        self.hitPoints -= hitPoints
+    def takeDamage(self, damagePoints):
+        ##damage taken is equal to damage given multiplied by your armour as a percentage of the maximum armour value (200) and if defending that damage is halved
+        if self.target.isDefending():
+            self.hitPoints -= ((damagePoints * (self.armourProtection / 200)) / 2)
+        else: self.hitPoints -= (damagePoints * (self.armourProtection / 200))
+        print(self.hitPoints)
+
+    def getArmourProtection(self, armour):
+        total = 0
+        for piece in armour:
+            total += piece.getVal()
+        return total
+
+    def isDefending(self):
+        return self.defending
 
 class Player(Animate):
     
     def __init__(self, name):
-        super().__init__(name, 1, 10)
+        super().__init__(name, 1, 10, Weapon("Hands",  5), [Armour(1, "Helmet of Beginner's Luck")])
     
     def getName(self):
         return self.name
@@ -98,8 +116,9 @@ class Enemy(Animate):
 class HardCodedStuff:
     def __init__ (self, _player):
         self.player = _player
-        self.armour = [Armour(0, 1, "Helmet of Beginner's Luck")]
-        self.enemies = [Enemy("Billy", 2, Weapon("Billy's Knife", 10), self.armour[0], 10, self.player)]
+        ##REMEMBER: MAX ARMOUR VAL MUST BE 200 OR YOU NEED TO CHANGE EARLIER##
+        self.armour = [Armour(1, "Helmet of Beginner's Luck"), Armour(2, "Billy's Helm")]
+        self.enemies = [Enemy("Billy", 2, Weapon("Billy's Knife", 10), [self.armour[1]], 10, self.player)]
         self.rooms = [[0,0,0,0],[0, 2, 7, 0], [0, 3, 8, 1], [0, 4, 9, 2], [0, 5, 10, 3],[0, 6, 11, 4], [0, 0, 12, 5], [1, 8, 13, 0], [2, 9, 14, 7],[3, 10, 15, 8], [4, 11, 16, 9], [5, 12, 17, 10], [6, 0, 18, 11],[7, 14, 19, 0], [8, 15, 20, 13], [9, 16, 21, 14], [10, 17, 22, 15], [11, 18, 23, 16], [12, 0, 24, 17], [13, 20, 25, 0], [14, 21, 26, 19], [15, 22, 27, 20], [16, 23, 28, 21], [17, 24, 29, 2], [18, 0, 30, 23], [19, 26, 31, 0], [20, 27, 32, 25], [21, 28, 33, 26], [22, 29, 34, 27], [23, 30, 35, 28], [24, 0, 36, 29], [25, 32, 0, 0], [26, 33, 0, 31], [27, 34, 0, 32], [28, 35, 0, 33], [29, 36, 0, 34], [30, 0, 0, 35]]
         self.descriptions = ["You cannot go in that direction... Please try again.", "1", "2", "3", "4", "5", "6", "7", "8", "9", "10", "11", "12", "13", "14", "15", "16"]
         self.populateCommandsDict()
@@ -146,13 +165,9 @@ class HardCodedStuff:
     
 class Armour:
     
-    def __init__ (self, kind, val, name):
-        self.kind = kind
+    def __init__ (self, val, name):
         self.val = val
         self.name = name
-    
-    def getKind(self):
-        return self.kind
     
     def getVal(self):
         return self.val
@@ -166,7 +181,7 @@ class Armour:
 class Enemy(Animate):
     
     def __init__ (self, name, room, weapon, armour, hitPoints, player):
-        super().__init__(name, room, hitPoints)
+        super().__init__(name, room, hitPoints, weapon, armour)
         self.target = player
 
     def getStats(self):
@@ -187,6 +202,9 @@ class Weapon:
     def __init__(self, name, damage):
         self.name = name
         self.damage = damage
+
+    def getDamage(self):
+        return self.damage
 
         
     
