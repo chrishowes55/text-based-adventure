@@ -1,3 +1,5 @@
+import time
+
 ##Super-class for all animate objects
 class Animate:
 
@@ -55,6 +57,7 @@ class Player(Animate):
     
     def __init__(self, name):
         super().__init__(name, 1, 10, Weapon("Hands",  5), [Armour(1, "Helmet of Beginner's Luck")])
+        self.fullHitPoints = 10
     
     def getName(self):
         return self.name
@@ -80,7 +83,7 @@ class Player(Animate):
             if hcs.findNewRoom(self.currentRoom, directionInt, "num") != 0:
                 self.currentRoom = int(hcs.findNewRoom(self.currentRoom, directionInt, "num"))
             print("Enemies in this room: \n" + hcs.getEnemiesInRoom(self.currentRoom, "str"))
-            if hcs.getEnemiesInRoom(self.currentRoom, "str"):
+            if hcs.getEnemiesInRoom(self.currentRoom, "str") != "":
                 print("You must choose an enemy to target")
                 i = 1
                 for enemy in hcs.getEnemiesInRoom(self.currentRoom, "list"):
@@ -93,6 +96,20 @@ class Player(Animate):
                     except ValueError as e:
                         print("This input must be a number")
                 self.setTarget(hcs.getEnemiesInRoom(self.currentRoom, "list")[target-1])
+            print("Contents of this room: \n" + hcs.getContentsOfRoom(self.currentRoom, "str"))
+            if hcs.getContentsOfRoom(self.currentRoom, "str") != "":
+                print("You may choose somewhere to visit")
+                i = 1
+                for place in hcs.getContentsOfRoom(self.currentRoom, "list"):
+                    print(str(i) + "). " + place.getName())
+                    i += 1
+                target = "not an int"
+                while not type(target) is int:
+                    try:
+                        target = int(input("Where would you like to go? (Type 0 for none of these)"))
+                    except ValueError as e:
+                        print("This input must be a number")
+                hcs.getContentsOfRoom(self.currentRoom, "list")[target-1].onVisit(self)
                     
       
 
@@ -100,7 +117,12 @@ class Player(Animate):
         print("Commands to choose from are: explore, help, status, attack, run, defend, quit")
 
     def getStatus(self):
-        print("My status")
+        print("Your status:")
+        print("\nYour armour stats: ")
+        for piece in self.armour:
+            print(piece.toStats() + "\n")
+        print("Your weapon stats: " + self.weapon.toStats())
+        print("\nYour remaining HP: " + str(self.hitPoints))
 
     def quitIt(self):
         print("Quitting")
@@ -128,9 +150,10 @@ class HardCodedStuff:
         self.player = _player
         ##REMEMBER: MAX ARMOUR VAL MUST BE 200 OR YOU NEED TO CHANGE EARLIER##
         self.armour = [Armour(1, "Helmet of Beginner's Luck"), Armour(2, "Billy's Helm")]
-        self.enemies = [Enemy("Billy", 2, Weapon("Billy's Knife", 10), [self.armour[1]], 10, self.player)]
+        self.weapons = [Weapon("Billy's Knife", 10)]
+        self.enemies = [Enemy("Billy", 2, self.weapons[0], [self.armour[1]], 10, self.player)]
         self.rooms = [[0,0,0,0],[0, 2, 7, 0], [0, 3, 8, 1], [0, 4, 9, 2], [0, 5, 10, 3],[0, 6, 11, 4], [0, 0, 12, 5], [1, 8, 13, 0], [2, 9, 14, 7],[3, 10, 15, 8], [4, 11, 16, 9], [5, 12, 17, 10], [6, 0, 18, 11],[7, 14, 19, 0], [8, 15, 20, 13], [9, 16, 21, 14], [10, 17, 22, 15], [11, 18, 23, 16], [12, 0, 24, 17], [13, 20, 25, 0], [14, 21, 26, 19], [15, 22, 27, 20], [16, 23, 28, 21], [17, 24, 29, 2], [18, 0, 30, 23], [19, 26, 31, 0], [20, 27, 32, 25], [21, 28, 33, 26], [22, 29, 34, 27], [23, 30, 35, 28], [24, 0, 36, 29], [25, 32, 0, 0], [26, 33, 0, 31], [27, 34, 0, 32], [28, 35, 0, 33], [29, 36, 0, 34], [30, 0, 0, 35]]
-        self.descriptions = ["You cannot go in that direction... Please try again.", "1", "2", "3", "4", "5", "6", "7", "8", "9", "10", "11", "12", "13", "14", "15", "16"]
+        self.descriptions = [Room("You cannot go in that direction... Please try again.", "You cannot go in that direction... Please try again.", []), Room("This is where you were created... The Mii Creation Screen where you, the saviour of your kind, were born", "Story", [MiiRecoverii("1R")]), Room("This is where you were created... The Mii Creation Screen where you, the saviour of your kind, were born2", "Story2", [MiiRecoverii("2R")]), Room("This is where you were created... The Mii Creation Screen where you, the saviour of your kind, were born3", "Story3", [MiiRecoverii("3R")])]
         self.populateCommandsDict()
 
     def populateCommandsDict(self):
@@ -149,8 +172,11 @@ class HardCodedStuff:
             return "That was not a valid direction"
         room = self.rooms[index1][index2]
         if s == "str":
-            return self.descriptions[room]
-        else: return room
+            if self.descriptions[room].isVisited():
+                return self.descriptions[room].getShortDesc()
+            self.descriptions[room].setVisited(True)
+            return self.descriptions[room].getLongDesc()
+        return room
 
     def getCommands(self):
         return self.commands
@@ -170,6 +196,14 @@ class HardCodedStuff:
                           returns.append(enemy.getStats())
                     else:
                           returns.append(enemy)
+        if returnType == "str":
+            return str(returns)[1:-1]
+        return returns
+
+    def getContentsOfRoom(self, room, returnType):
+        returns = []
+        for place in self.descriptions[room].contents:
+            returns.append(place)
         if returnType == "str":
             return str(returns)[1:-1]
         return returns
@@ -196,7 +230,7 @@ class Enemy(Animate):
         self.target = player
 
     def getStats(self):
-        return self.getName() + ": Health: " + str(self.getHealth())
+        return self.name + ": Health: " + str(self.hitPoints)
 
     def getRoom(self):
         return self.currentRoom
@@ -216,6 +250,59 @@ class Weapon:
 
     def getDamage(self):
         return self.damage
+
+    def toStats(self):
+        return self.name +": Damage Given: " + str(self.damage)
+
+class Room:
+
+    def __init__(self, shortDesc, longDesc, contents):
+        self.shortDesc = shortDesc
+        self.longDesc = longDesc
+        self.contents = contents
+        self.visited = False
+
+    def isVisited(self):
+        return self.visited
+
+    def setVisited(self, boolean):
+        self.visited = boolean
+
+    def getShortDesc(self):
+        return self.shortDesc
+
+    def getLongDesc(self):
+        return self.longDesc
+
+class Place:
+    
+    def __init__(self, name):
+        self.name = name
+
+    def getName(self):
+        return self.name
+
+class MiiRecoverii(Place):
+
+    def __init__(self, name):
+        super().__init__(name)
+
+    def onVisit(self, player):
+        while True:
+            heal = input("Welcome to MiiRecoverii! Would you like to be healed? (Y/N)").upper()
+            if heal == "Y":
+                print("3")
+                time.sleep(1)
+                print("2")
+                time.sleep(1)
+                print("1...Aaaaand voila! You have been healed")
+                player.hitPoints = player.fullHitPoints
+                break
+            elif heal == "N":
+                print("See you soon then!")
+                break
+            else:
+                print("I'm sorry... I don't understand you...")
 
         
     
