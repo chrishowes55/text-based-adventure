@@ -9,6 +9,7 @@ class Animate:
         self.weapon = weapon
         self.armour = armour
         self.armourProtection = self.getArmourProtection(armour)
+        self.dead = False
 
     ##All Animate objects have a way of attacking
     def attack(self):
@@ -24,12 +25,21 @@ class Animate:
         print("run")
         self.defending = False
 
+    def die(self):
+        print(self.name + " is dead... Well done!")
+        self.dead = True
+
+    def isDead(self):
+        return self.dead
+
     #All Animate objects must be able to take damage
     def takeDamage(self, damagePoints):
-        ##damage taken is equal to damage given multiplied by your armour as a percentage of the maximum armour value (200) and if defending that damage is halved
+        ##damage taken is equal to damage given multiplied by (1 - your armour as a percentage of the maximum armour value (200)) and if defending that damage is halved
         if self.target.isDefending():
-            self.hitPoints -= ((damagePoints * (self.armourProtection / 200)) / 2)
-        else: self.hitPoints -= (damagePoints * (self.armourProtection / 200))
+            self.hitPoints -= int((damagePoints * (1 - (self.armourProtection / 200))) / 2)
+        else: self.hitPoints -= int(damagePoints * (1 - (self.armourProtection / 200)))
+        if self.hitPoints <= 0:
+            self.die()
         print(self.hitPoints)
 
     def getArmourProtection(self, armour):
@@ -154,11 +164,12 @@ class HardCodedStuff:
     def getEnemiesInRoom(self, room, returnType):
         returns = []
         for enemy in self.enemies:
-            if enemy.getRoom() == room:
-                if returnType == "str":
-                      returns.append(enemy.getStats())
-                else:
-                      returns.append(enemy)
+            if not enemy.isDead():
+                if enemy.getRoom() == room:
+                    if returnType == "str":
+                          returns.append(enemy.getStats())
+                    else:
+                          returns.append(enemy)
         if returnType == "str":
             return str(returns)[1:-1]
         return returns
