@@ -51,7 +51,21 @@ class Player(Animate):
                 print(hcs.findNewRoom(self.currentRoom, directionInt, "str"))
             if hcs.findNewRoom(self.currentRoom, directionInt, "num") != 0:
                 self.currentRoom = int(hcs.findNewRoom(self.currentRoom, directionInt, "num"))
-            print("Enemies in this room: \n" + hcs.getEnemiesInRoom(self.currentRoom))
+            print("Enemies in this room: \n" + hcs.getEnemiesInRoom(self.currentRoom, "str"))
+            if hcs.getEnemiesInRoom(self.currentRoom, "str"):
+                print("You must choose an enemy to target")
+                i = 1
+                for enemy in hcs.getEnemiesInRoom(self.currentRoom, "list"):
+                    print(str(i) + "). " + enemy.getName())
+                    i += 1
+                target = "not an int"
+                while not type(target) is int:
+                    try:
+                        target = int(input("Who would you like to target?"))
+                    except ValueError as e:
+                        print("This input must be a number")
+                self.setTarget(hcs.getEnemiesInRoom(self.currentRoom, "list")[target-1])
+                    
       
 
     def helpMe(self):
@@ -74,6 +88,7 @@ class Player(Animate):
 
     def setTarget(self, target):
         self.target = target
+        print(self.target)
 
 class Enemy(Animate):
     
@@ -117,12 +132,17 @@ class HardCodedStuff:
     def getStatsAtIndexInEnemyArray(self, index):
         return self.enemies[index].getStats()
 
-    def getEnemiesInRoom(self, room):
+    def getEnemiesInRoom(self, room, returnType):
         returns = []
         for enemy in self.enemies:
             if enemy.getRoom() == room:
-                returns.append(enemy.getStats())
-        return str(returns)[1:-1]
+                if returnType == "str":
+                      returns.append(enemy.getStats())
+                else:
+                      returns.append(enemy)
+        if returnType == "str":
+            return str(returns)[1:-1]
+        return returns
     
 class Armour:
     
