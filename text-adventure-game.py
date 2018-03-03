@@ -12,20 +12,25 @@ class Animate:
         self.armour = armour
         self.armourProtection = self.getArmourProtection(armour)
         self.dead = False
+        self.attacking = False
+        self.defending = False
 
     ##All Animate objects have a way of attacking
     def attack(self):
-        self.defending = True
+        self.attacking = True
+        self.defending = False
         self.target.takeDamage(self.weapon.getDamage())
 
     ##All Animate objects have a way of defending
     def defend(self):
         self.defending = True
+        self.attacing = True
 
     ##All Animate objects have a way of running
     def run(self):
         print("run")
         self.defending = False
+        self.attacking = False
 
     def die(self):
         print(self.name + " is dead... Well done!")
@@ -53,6 +58,9 @@ class Animate:
     def isDefending(self):
         return self.defending
 
+    def isAttacking(self):
+        return self.attacking
+
 class Player(Animate):
     
     def __init__(self, name):
@@ -62,41 +70,8 @@ class Player(Animate):
     def getName(self):
         return self.name
 
-    def explore(self, hcs):
-        choosing = True
-        while choosing:
-            direction = input("Which way do you want to go? (N/E/S/W)")
-            if direction == "N":
-                directionInt = 0
-            elif direction == "E":
-                directionInt = 1
-            elif direction == "S":
-                directionInt = 2
-            elif direction == "W":
-                directionInt = 3
-            else:
-                directionInt = 4
-
-            if hcs.findNewRoom(self.currentRoom, directionInt, "str") != "That was not a valid direction" and hcs.findNewRoom(self.currentRoom, directionInt, "str") != "You cannot go in that direction... Please try again.":
-                choosing = False
-                print(hcs.findNewRoom(self.currentRoom, directionInt, "str"))
-            if hcs.findNewRoom(self.currentRoom, directionInt, "num") != 0:
-                self.currentRoom = int(hcs.findNewRoom(self.currentRoom, directionInt, "num"))
-            print("Enemies in this room: \n" + hcs.getEnemiesInRoom(self.currentRoom, "str"))
-            if hcs.getEnemiesInRoom(self.currentRoom, "str") != "":
-                print("You must choose an enemy to target")
-                i = 1
-                for enemy in hcs.getEnemiesInRoom(self.currentRoom, "list"):
-                    print(str(i) + "). " + enemy.getName())
-                    i += 1
-                target = "not an int"
-                while not type(target) is int:
-                    try:
-                        target = int(input("Who would you like to target?"))
-                    except ValueError as e:
-                        print("This input must be a number")
-                self.setTarget(hcs.getEnemiesInRoom(self.currentRoom, "list")[target-1])
-            print("Contents of this room: \n" + hcs.getContentsOfRoom(self.currentRoom, "str"))
+    def go(self, hcs):
+        if not self.attacking:
             if hcs.getContentsOfRoom(self.currentRoom, "str") != "":
                 print("You may choose somewhere to visit")
                 i = 1
@@ -110,11 +85,54 @@ class Player(Animate):
                     except ValueError as e:
                         print("This input must be a number")
                 hcs.getContentsOfRoom(self.currentRoom, "list")[target-1].onVisit(self)
+        else: print("You cannot go anywhere whilst attacking")
+
+    def setTarget(self, hcs):
+        if hcs.getEnemiesInRoom(self.currentRoom, "str") != "":
+            print("You must choose an enemy to target")
+            i = 1
+            for enemy in hcs.getEnemiesInRoom(self.currentRoom, "list"):
+                print(str(i) + "). " + enemy.getName())
+                i += 1
+            target = "not an int"
+            while not type(target) is int:
+                try:
+                    target = int(input("Who would you like to target?"))
+                except ValueError as e:
+                    print("This input must be a number")
+            self.makeTarget(hcs.getEnemiesInRoom(self.currentRoom, "list")[target-1])
+            self.attacking = True
+
+    def explore(self, hcs):
+        if not self.attacking:
+            choosing = True
+            while choosing:
+                direction = input("Which way do you want to go? (N/E/S/W)")
+                if direction == "N":
+                    directionInt = 0
+                elif direction == "E":
+                    directionInt = 1
+                elif direction == "S":
+                    directionInt = 2
+                elif direction == "W":
+                    directionInt = 3
+                else:
+                    directionInt = 4
+
+                if hcs.findNewRoom(self.currentRoom, directionInt, "str") != "That was not a valid direction" and hcs.findNewRoom(self.currentRoom, directionInt, "str") != "You cannot go in that direction... Please try again.":
+                    choosing = False
+                    print(hcs.findNewRoom(self.currentRoom, directionInt, "str"))
+                if hcs.findNewRoom(self.currentRoom, directionInt, "num") != 0:
+                    self.currentRoom = int(hcs.findNewRoom(self.currentRoom, directionInt, "num"))
+                print("Enemies in this room: \n" + hcs.getEnemiesInRoom(self.currentRoom, "str"))
+                self.setTarget(hcs)
+                print("Contents of this room: \n" + hcs.getContentsOfRoom(self.currentRoom, "str"))
+        else: print("You cannot explore while attacking... Please run away first")
                     
       
 
     def helpMe(self):
-        print("Commands to choose from are: explore, help, status, attack, run, defend, quit")
+        print("Commands to choose from are: explore, go, help, status, attack, run, defend, target, quit")
 
     def getStatus(self):
         print("Your status:")
@@ -129,14 +147,14 @@ class Player(Animate):
         quit()
 
     def doCommand(self, s, hcs):
-        if s in hcs.getCommands() and s != "explore":
+        if s in hcs.getCommands() and s != "explore" and s != "target" and s != "go":
             hcs.getCommands()[s]()
         elif s in hcs.getCommands():
             hcs.getCommands()[s](hcs)
         else:
             print("Invalid input... Please try again")
 
-    def setTarget(self, target):
+    def makeTarget(self, target):
         self.target = target
         print(self.target)
 
@@ -165,6 +183,8 @@ class HardCodedStuff:
             "status": player.getStatus,
             "run": player.run,
             "quit": player.quitIt,
+            "go": player.go,
+            "target": player.setTarget,
       } 
 
     def findNewRoom(self, index1, index2, s):
@@ -202,8 +222,10 @@ class HardCodedStuff:
 
     def getContentsOfRoom(self, room, returnType):
         returns = []
-        for place in self.descriptions[room].contents:
-            returns.append(place)
+        for place in self.descriptions[room].getContents():
+            if returnType == "str":
+                returns.append(place.getName())
+            else: returns.append(place)
         if returnType == "str":
             return str(returns)[1:-1]
         return returns
@@ -273,6 +295,9 @@ class Room:
 
     def getLongDesc(self):
         return self.longDesc
+
+    def getContents(self):
+        return self.contents
 
 class Place:
     
