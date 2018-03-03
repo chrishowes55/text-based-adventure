@@ -17,37 +17,45 @@ class Animate:
 
     ##All Animate objects have a way of attacking
     def attack(self):
-        print("Attack")
+        print(self.name + " attacks " + self.target.getName())
         self.attacking = True
         self.defending = False
         self.target.takeDamage(random.randint(self.weapon.getDamage()-2, self.weapon.getDamage()+2))
 
     ##All Animate objects have a way of defending
     def defend(self):
-        print("Defend")
+        if self.defending:
+            print(self.name + " continues to defend")
+        else: print(self.name + " is now defending")
         self.defending = True
         self.attacking = True
 
     ##All Animate objects have a way of running
     def run(self):
-        print("Attack")
+        print(self.name + " attempts to run from " + self.target.getName())
         luck = random.randing(1, 100)
         if luck % 2 == 0:
-            print("You escaped successfully!")
+            print(self.name + " has escaped successfully!")
             self.defending = False
             self.attacking = False
-        else: print("Your escape attempt failed")
+        else: print(self.name + "'s escape attempt failed")
 
     def takeDamage(self, damagePoints):
-        print("Taking damage in super")
         ##damage taken is equal to damage given multiplied by (1 - your armour as a percentage of the maximum armour value (200)) and if defending that damage is divided by 2, 3 or 4
         if self.isDefending():
-            self.hitPoints -= int((damagePoints * (1 - (self.armourProtection / 200))) / random.randint(2, 4))
-        else: self.hitPoints -= int(damagePoints * (1 - (self.armourProtection / 200)))
+            myDamage = int((damagePoints * (1 - (self.armourProtection / 200))) / random.randint(2, 4))
+            self.hitPoints -= myDamage
+        else:
+            myDamage = int(damagePoints * (1 - (self.armourProtection / 200)))
+            self.hitPoints -= myDamage
+        print(self.name + " took " + str(myDamage) + " damage")
         if self.hitPoints <= 0:
             self.die()
-        print(self.hitPoints)
-
+            print(self.name + " died")
+        else:
+            if self.hitPoints > 1: print(self.name + " has " + str(self.hitPoints) + " hit points remaining")
+            else: print(self.name + " has " + str(self.hitPoints) + " hit point remaining")
+            
     def die(self):
         print(self.name + " is dead... Well done!")
         self.dead = True
@@ -80,21 +88,23 @@ class Player(Animate):
         return self.name
     
     def defend(self):
-        print("Defend")
+        if self.defending:
+            print(self.name + " continues to defend")
+        else: print(self.name + " is now defending")
         self.defending = True
         self.attacking = True
         self.target.decideNextMove()
 
     def run(self):
-        print("Attack")
-        luck = random.randint(1, 100)
+        print(self.name + " attempts to run from " + self.target.getName())
+        luck = random.randing(1, 100)
         if luck % 2 == 0:
-            print("You escaped successfully!")
+            print(self.name + " has escaped successfully!")
             self.defending = False
             self.attacking = False
         else:
-            print("Your escape attempt failed")
-            enemy.decideNextMove()
+            print(self.name + "'s escape attempt failed")
+            target.decideMextMove()
 
     def go(self, hcs):
         if not self.attacking:
@@ -182,7 +192,6 @@ class Player(Animate):
 
     def makeTarget(self, target):
         self.target = target
-        print(self.target)
 
 class HardCodedStuff:
     def __init__ (self, _player):
@@ -295,16 +304,21 @@ class Enemy(Animate):
                 self.attack()
 
     def takeDamage(self, damagePoints):
-        print("Taking damage in enemy")
         ##damage taken is equal to damage given multiplied by (1 - your armour as a percentage of the maximum armour value (200)) and if defending that damage is divided by 2, 3 or 4
         if self.isDefending():
-            self.hitPoints -= int((damagePoints * (1 - (self.armourProtection / 200))) / random.randint(2, 4))
-        else: self.hitPoints -= int(damagePoints * (1 - (self.armourProtection / 200)))
+            myDamage = int((damagePoints * (1 - (self.armourProtection / 200))) / random.randint(2, 4))
+            self.hitPoints -= myDamage
+        else:
+            myDamage = int(damagePoints * (1 - (self.armourProtection / 200)))
+            self.hitPoints -= myDamage
+        print(self.name + " took " + str(myDamage) + " damage")
         if self.hitPoints <= 0:
             self.die()
+            print(self.name + " died")
         else:
             self.decideNextMove()
-        print(self.hitPoints)
+            if self.hitPoints > 1: print(self.name + " has " + str(self.hitPoints) + " hit points remaining")
+            else: print(self.name + " has " + str(self.hitPoints) + " hit point remaining")
 
 
 class Weapon:
