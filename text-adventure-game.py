@@ -1,4 +1,4 @@
-import time
+import time, random
 
 ##Super-class for all animate objects
 class Animate:
@@ -17,20 +17,36 @@ class Animate:
 
     ##All Animate objects have a way of attacking
     def attack(self):
+        print("Attack")
         self.attacking = True
         self.defending = False
-        self.target.takeDamage(self.weapon.getDamage())
+        self.target.takeDamage(random.randint(self.weapon.getDamage()-2, self.weapon.getDamage()+2))
 
     ##All Animate objects have a way of defending
     def defend(self):
+        print("Defend")
         self.defending = True
-        self.attacing = True
+        self.attacking = True
 
     ##All Animate objects have a way of running
     def run(self):
-        print("run")
-        self.defending = False
-        self.attacking = False
+        print("Attack")
+        luck = random.randing(1, 100)
+        if luck % 2 == 0:
+            print("You escaped successfully!")
+            self.defending = False
+            self.attacking = False
+        else: print("Your escape attempt failed")
+
+    def takeDamage(self, damagePoints):
+        print("Taking damage in super")
+        ##damage taken is equal to damage given multiplied by (1 - your armour as a percentage of the maximum armour value (200)) and if defending that damage is divided by 2, 3 or 4
+        if self.isDefending():
+            self.hitPoints -= int((damagePoints * (1 - (self.armourProtection / 200))) / random.randint(2, 4))
+        else: self.hitPoints -= int(damagePoints * (1 - (self.armourProtection / 200)))
+        if self.hitPoints <= 0:
+            self.die()
+        print(self.hitPoints)
 
     def die(self):
         print(self.name + " is dead... Well done!")
@@ -39,21 +55,14 @@ class Animate:
     def isDead(self):
         return self.dead
 
-    #All Animate objects must be able to take damage
-    def takeDamage(self, damagePoints):
-        ##damage taken is equal to damage given multiplied by (1 - your armour as a percentage of the maximum armour value (200)) and if defending that damage is halved
-        if self.target.isDefending():
-            self.hitPoints -= int((damagePoints * (1 - (self.armourProtection / 200))) / 2)
-        else: self.hitPoints -= int(damagePoints * (1 - (self.armourProtection / 200)))
-        if self.hitPoints <= 0:
-            self.die()
-        print(self.hitPoints)
-
     def getArmourProtection(self, armour):
         total = 0
         for piece in armour:
             total += piece.getVal()
         return total
+
+    def decideNextMove(self):
+        print("Cannae decide I'm unimplemented")
 
     def isDefending(self):
         return self.defending
@@ -64,11 +73,28 @@ class Animate:
 class Player(Animate):
     
     def __init__(self, name):
-        super().__init__(name, 1, 10, Weapon("Hands",  5), [Armour(1, "Helmet of Beginner's Luck")])
+        super().__init__(name, 1, 100, Weapon("Hands",  5), [Armour(1, "Helmet of Beginner's Luck")])
         self.fullHitPoints = 10
     
     def getName(self):
         return self.name
+    
+    def defend(self):
+        print("Defend")
+        self.defending = True
+        self.attacking = True
+        self.target.decideNextMove()
+
+    def run(self):
+        print("Attack")
+        luck = random.randint(1, 100)
+        if luck % 2 == 0:
+            print("You escaped successfully!")
+            self.defending = False
+            self.attacking = False
+        else:
+            print("Your escape attempt failed")
+            enemy.decideNextMove()
 
     def go(self, hcs):
         if not self.attacking:
@@ -158,11 +184,6 @@ class Player(Animate):
         self.target = target
         print(self.target)
 
-class Enemy(Animate):
-    
-    def __init__(self, name, currentRoom, hitPoints):
-        super().__init__(name, currentRoom, hitPoints)
-    
 class HardCodedStuff:
     def __init__ (self, _player):
         self.player = _player
@@ -262,6 +283,28 @@ class Enemy(Animate):
 
     def getHealth(self):
         return self.hitPoints
+
+    def decideNextMove(self):
+        luck = random.randint(1, 100)
+        if luck % 88 == 0:
+            self.run()
+        else:
+            if luck > 70:
+                self.defend()
+            else:
+                self.attack()
+
+    def takeDamage(self, damagePoints):
+        print("Taking damage in enemy")
+        ##damage taken is equal to damage given multiplied by (1 - your armour as a percentage of the maximum armour value (200)) and if defending that damage is divided by 2, 3 or 4
+        if self.isDefending():
+            self.hitPoints -= int((damagePoints * (1 - (self.armourProtection / 200))) / random.randint(2, 4))
+        else: self.hitPoints -= int(damagePoints * (1 - (self.armourProtection / 200)))
+        if self.hitPoints <= 0:
+            self.die()
+        else:
+            self.decideNextMove()
+        print(self.hitPoints)
 
 
 class Weapon:
