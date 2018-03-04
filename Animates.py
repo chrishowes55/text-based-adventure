@@ -57,10 +57,6 @@ class Animate:
         else:
             if self.hitPoints > 1: print(self.name + " has " + str(self.hitPoints) + " hit points remaining")
             else: print(self.name + " has " + str(self.hitPoints) + " hit point remaining")
-            
-    def die(self):
-        print(self.name + " is dead... Well done!")
-        self.dead = True
 
     def isDead(self):
         return self.dead
@@ -90,6 +86,24 @@ class Player(Animate):
         self.level = 1
         self.fullHitPoints = 15
         self.initialHitPoints = 15
+        self.levelXPs = [0, 10, 25, 45, 70, 100, 135, 180, 230, 285, 345, 1000000000]
+        self.hits = 0
+        self.xp = 0
+
+    def incrementXP(self):
+        self.xp += self.hits**2
+        if self.xp >= self.levelXPs[self.level]:
+            diff = self.xp - self.levelXPs[self.level]
+            self.incrementLevel()
+            self.xp = 0 + diff
+        print("You need another " + str(self.levelXPs[self.level] - self.xp) + " XP to level up")
+        
+    def attack(self):
+        print(self.name + " attacks " + self.target.getName())
+        self.hits += 1
+        self.attacking = True
+        self.defending = False
+        self.target.takeDamage(random.randint(self.weapon.getDamage()-2, self.weapon.getDamage()+2))
     
     def getName(self):
         return self.name
@@ -101,6 +115,10 @@ class Player(Animate):
         self.defending = True
         self.attacking = True
         self.target.decideNextMove()
+            
+    def die(self):
+        print("You died... please restart")
+        self.quitIt()
 
     def run(self):
         print(self.name + " attempts to run from " + self.target.getName())
@@ -186,6 +204,7 @@ class Player(Animate):
 
     def incrementLevel(self):
         self.level += 1
+        print("You have levelled up! Your new full health is " + str(getFullHitPoints()) + ", so go to a MiiRecoverii to upgrade your health")
 
     def getFullHitPoints(self):
         self.setFullHitPoints()
@@ -238,6 +257,12 @@ class Enemy(Animate):
 
     def getRoom(self):
         return self.currentRoom
+            
+    def die(self):
+        print(self.name + " is dead... Well done!")
+        self.target.incrementXP()
+        self.target.hits = 0
+        self.dead = True
 
     def getName(self):
         return self.name
