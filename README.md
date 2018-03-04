@@ -7,7 +7,7 @@
 * Watch for his three Titular Characters that you will have to fight to reach him
 * Please don't copyright strike me Nintendo
 
-###Buildings in the game
+### Buildings in the game
 * MiiRecoverii - A place to heal up
 * MiiBuyy - A place to buy weapons, armour and items
 * MiiDestroyy - A place to grind and gain both XP and gold... Providing you can beat the enemies in here
