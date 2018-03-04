@@ -82,7 +82,7 @@ class Animate:
 class Player(Animate):
     
     def __init__(self, name):
-        super().__init__(name, 1, 100, Weapon("Hands",  5, 0,), [Armour(1, "Helmet of Beginner's Luck", 0)])
+        super().__init__(name, 1, 15, Weapon("Hands",  5, 0,), [Armour(1, "Helmet of Beginner's Luck", 0)])
         self.level = 1
         self.fullHitPoints = 15
         self.initialHitPoints = 15
@@ -229,6 +229,8 @@ class Player(Animate):
             print(piece.toStats() + "\n")
         print("Your weapon stats: " + self.weapon.toStats())
         print("\nYour remaining HP: " + str(self.hitPoints))
+        print("\nYour level: "+ str(self.level))
+        print("\nYour XP: " + str(self.xp))
 
     def quitIt(self):
         print("Quitting")
