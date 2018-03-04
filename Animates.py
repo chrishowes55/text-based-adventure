@@ -5,7 +5,7 @@ import random
 class Animate:
 
     ##Constructor for Animate, sets inherited properties of the method
-    def __init__(self, name, currentRoom, hitPoints, weapon, armour):
+    def __init__(self, name, currentRoom, hitPoints, weapon, armour, money):
         self.name = name
         self.currentRoom = currentRoom
         self.hitPoints = hitPoints
@@ -15,6 +15,7 @@ class Animate:
         self.dead = False
         self.attacking = False
         self.defending = False
+        self.money = money
 
     ##All Animate objects have a way of attacking
     def attack(self):
@@ -82,13 +83,28 @@ class Animate:
 class Player(Animate):
     
     def __init__(self, name):
-        super().__init__(name, 1, 15, Weapon("Hands",  5, 0,), [Armour(1, "Helmet of Beginner's Luck", 0)])
+        super().__init__(name, 1, 15, Weapon("Hands",  5, 0), [Armour(1, "Helmet of Beginner's Luck", 0)], 0)
         self.level = 1
         self.fullHitPoints = 15
         self.initialHitPoints = 15
         self.levelXPs = [0, 10, 25, 45, 70, 100, 135, 180, 230, 285, 345, 1000000000]
         self.hits = 0
         self.xp = 0
+        self.backpack = [Weapon("Hands", 5, 0), Armour(1, "Helmet of Beginner's Luck", 0)]
+
+    def addToMoney(self, money):
+        self.money += money
+
+    def buy(self, item):
+        if item.getPrice() - self.money > 0:
+            print("You cannot buy this")
+        else:
+            print("Item bought!")
+            self.money -= item.getPrice()
+            self.gain(item)
+
+    def gain(self, item):
+        self.backpack.append(item)
 
     def incrementXP(self):
         self.xp += self.hits**2
@@ -155,6 +171,8 @@ class Player(Animate):
                 for array in hcs.getItemsInRoom(self.currentRoom, "list"):
                     for thing in array:
                         print(self.name + " found " + thing.getName())
+                        add = input("Add to backpack? (Y/N)").upper()
+                        if add == "Y": self.gain(thing)
             else: print("There was nothing in this room")
 
     def setTarget(self, hcs):
@@ -204,7 +222,7 @@ class Player(Animate):
 
     def incrementLevel(self):
         self.level += 1
-        print("You have levelled up! Your new full health is " + str(getFullHitPoints()) + ", so go to a MiiRecoverii to upgrade your health")
+        print("You have levelled up! Your new full health is " + str(self.getFullHitPoints()) + ", so go to a MiiRecoverii to upgrade your health")
 
     def getFullHitPoints(self):
         self.setFullHitPoints()
@@ -250,8 +268,8 @@ class Player(Animate):
 
 class Enemy(Animate):
     
-    def __init__ (self, name, room, weapon, armour, hitPoints, player):
-        super().__init__(name, room, hitPoints, weapon, armour)
+    def __init__ (self, name, room, weapon, armour, hitPoints, player, money):
+        super().__init__(name, room, hitPoints, weapon, armour, money)
         self.target = player
 
     def getStats(self):
@@ -264,6 +282,7 @@ class Enemy(Animate):
         print(self.name + " is dead... Well done!")
         self.target.incrementXP()
         self.target.hits = 0
+        self.target.addToMoney(self.money)
         self.dead = True
 
     def getName(self):
@@ -281,6 +300,15 @@ class Enemy(Animate):
                 self.defend()
             else:
                 self.attack()
+    def run(self):
+        print(self.name + " attempts to run from " + self.target.getName())
+        luck = random.randint(1, 100)
+        if luck % 2 == 0:
+            print(self.name + " has escaped successfully!")
+            self.defending = False
+            self.attacking = False
+            self.target.setAttacking(False)
+        else: print(self.name + "'s escape attempt failed")
 
     def takeDamage(self, damagePoints):
         ##damage taken is equal to damage given multiplied by (1 - your armour as a percentage of the maximum armour value (200)) and if defending that damage is divided by 2, 3 or 4

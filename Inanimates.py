@@ -42,7 +42,19 @@ class Item(Inanimate):
         super().__init__(name, location)
         self.ability = ability
 
+class Shop:
 
+    def __init__(self, price):
+        self.price = price
+
+    def getPrice(self):
+        return self.price
+
+class ShopItem(Item, Shop):
+
+    def __init__(self, name, ability, location, price):
+        Item.__init__(self, name, ability, location)
+        Shop.__init__(self, price)
 
 class Ability:
 
