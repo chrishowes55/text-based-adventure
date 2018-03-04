@@ -12,13 +12,15 @@ class Inanimate:
 
 class Armour(Inanimate):
     
-    def __init__ (self, val, name, location):
+    def __init__ (self, val, name, location, place):
         super().__init__(name, location)
         self.val = val
     
     def getVal(self):
         return self.val
-        return self.name
+
+    def getPlace(self):
+        return self.place
     
     def toStats(self):
         return self.name + ": Armour Points: " + str(self.val)
@@ -42,6 +44,9 @@ class Item(Inanimate):
         super().__init__(name, location)
         self.ability = ability
 
+    def getAbility(self):
+        return self.ability
+
 class Shop:
 
     def __init__(self, price):
@@ -61,4 +66,10 @@ class Ability:
     def __init__(self, typeOf, val):
         self.typeOf = typeOf
         self.val = val
+
+    def getTypeOf(self):
+        return self.typeOf
+
+    def getVal(self):
+        return val
 

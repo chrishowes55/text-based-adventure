@@ -15,6 +15,7 @@ class MiiRecoverii(Place):
         super().__init__(name)
 
     def onVisit(self, player):
+        #Loop so we can deal with bad typers
         while True:
             heal = input("Welcome to MiiRecoverii! Would you like to be healed? (Y/N)").upper()
             if heal == "Y":
@@ -41,6 +42,7 @@ class MiiBuyy(Place):
         self.armour = armour
 
     def onVisit(self, player):
+        #Loop for bad typers
         choosing = True
         while choosing:
             choice = input("Are you shopping for items, weapons or armour?").lower()
@@ -48,6 +50,7 @@ class MiiBuyy(Place):
                 choosing = False
         if choice == "items":
             if self.items != []:
+                #Print indexed list
                 print("Choose an item to buy!")
                 i = 1
                 for item in self.items:
@@ -64,6 +67,7 @@ class MiiBuyy(Place):
             
         if choice == "weapons":
             if self.weapons != []:
+                #Print indexed list
                 print("Choose an item to buy!")
                 i = 1
                 for weapon in self.weapons:
@@ -81,6 +85,7 @@ class MiiBuyy(Place):
         if choice == "armour":
             if self.armour != []:
                 print("Choose an item to buy!")
+                #Print indexed list
                 i = 1
                 for piece in self.armour:
                     print(str(i) + "). " + piece.getName() + ", Price: " + str(piece.getPrice()))

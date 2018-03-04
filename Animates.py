@@ -1,10 +1,8 @@
 from Inanimates import Weapon, Armour
-import random
+import random, time
 
-##Super-class for all animate objects
 class Animate:
 
-    ##Constructor for Animate, sets inherited properties of the method
     def __init__(self, name, currentRoom, hitPoints, weapon, armour, money):
         self.name = name
         self.currentRoom = currentRoom
@@ -17,14 +15,12 @@ class Animate:
         self.defending = False
         self.money = money
 
-    ##All Animate objects have a way of attacking
     def attack(self):
         print(self.name + " attacks " + self.target.getName())
         self.attacking = True
         self.defending = False
         self.target.takeDamage(random.randint(self.weapon.getDamage()-2, self.weapon.getDamage()+2))
 
-    ##All Animate objects have a way of defending
     def defend(self):
         if self.defending:
             print(self.name + " continues to defend")
@@ -32,7 +28,6 @@ class Animate:
         self.defending = True
         self.attacking = True
 
-    ##All Animate objects have a way of running
     def run(self):
         print(self.name + " attempts to run from " + self.target.getName())
         luck = random.randint(1, 100)
@@ -92,6 +87,9 @@ class Player(Animate):
         self.xp = 0
         self.backpack = [Weapon("Hands", 5, 0), Armour(1, "Helmet of Beginner's Luck", 0)]
 
+    def getMoney(self):
+        return self.money
+
     def addToMoney(self, money):
         self.money += money
 
@@ -107,6 +105,7 @@ class Player(Animate):
         self.backpack.append(item)
 
     def incrementXP(self):
+        #XP given is equal to number of hits dealt squared (slightly flawed, maybe revisit
         self.xp += self.hits**2
         if self.xp >= self.levelXPs[self.level]:
             diff = self.xp - self.levelXPs[self.level]
@@ -119,6 +118,7 @@ class Player(Animate):
         self.hits += 1
         self.attacking = True
         self.defending = False
+        #Damage given is slightly random
         self.target.takeDamage(random.randint(self.weapon.getDamage()-2, self.weapon.getDamage()+2))
     
     def getName(self):
@@ -139,6 +139,7 @@ class Player(Animate):
     def run(self):
         print(self.name + " attempts to run from " + self.target.getName())
         luck = random.randint(1, 100)
+        #Half of the time can escape, half cannot
         if luck % 2 == 0:
             print(self.name + " has escaped successfully!")
             self.defending = False
@@ -150,6 +151,7 @@ class Player(Animate):
     def go(self, hcs):
         if not self.attacking:
             if hcs.getContentsOfRoom(self.currentRoom, "str") != "":
+                #Fairly common construct in this code - prints an indexed list to choose from
                 print("You may choose somewhere to visit")
                 i = 1
                 for place in hcs.getContentsOfRoom(self.currentRoom, "list"):
@@ -167,16 +169,19 @@ class Player(Animate):
     def search(self, hcs):
         if not self.attacking:
             if hcs.getItemsInRoom(self.currentRoom, "list") != [[], [], []]:
+                #Goes through room and finds everything in it
                 print("Items in this room: " + hcs.getItemsInRoom(self.currentRoom, "str"))
                 for array in hcs.getItemsInRoom(self.currentRoom, "list"):
                     for thing in array:
                         print(self.name + " found " + thing.getName())
                         add = input("Add to backpack? (Y/N)").upper()
                         if add == "Y": self.gain(thing)
+                        time.sleep(1)
             else: print("There was nothing in this room")
 
     def setTarget(self, hcs):
         if hcs.getEnemiesInRoom(self.currentRoom, "str") != "":
+            #Prints indexed list
             print("You must choose an enemy to target")
             i = 1
             for enemy in hcs.getEnemiesInRoom(self.currentRoom, "list"):
@@ -196,6 +201,7 @@ class Player(Animate):
             choosing = True
             while choosing:
                 direction = input("Which way do you want to go? (N/E/S/W)")
+                #Converts input to int
                 if direction == "N":
                     directionInt = 0
                 elif direction == "E":
@@ -207,11 +213,13 @@ class Player(Animate):
                 else:
                     directionInt = 4
 
+                #We have gone valid way
                 if hcs.findNewRoom(self.currentRoom, directionInt, "str") != "That was not a valid direction" and hcs.findNewRoom(self.currentRoom, directionInt, "str") != "You cannot go in that direction... Please try again.":
                     choosing = False
                     print(hcs.findNewRoom(self.currentRoom, directionInt, "str"))
                 if hcs.findNewRoom(self.currentRoom, directionInt, "num") != 0:
                     self.currentRoom = int(hcs.findNewRoom(self.currentRoom, directionInt, "num"))
+                #Does basic housekeeping for new room
                 print("Enemies in this room: \n" + hcs.getEnemiesInRoom(self.currentRoom, "str"))
                 self.setTarget(hcs)
                 print("Contents of this room: \n" + hcs.getContentsOfRoom(self.currentRoom, "str"))
@@ -229,6 +237,7 @@ class Player(Animate):
         return self.fullHitPoints
 
     def setFullHitPoints(self):
+        #nth term is (5/2)(n^2)+(5/2)n+10
         change = 10
         changeIncrement = 5
         total = self.initialHitPoints
@@ -239,6 +248,7 @@ class Player(Animate):
 
     def backpack(self):
         if self.backpack != []:
+            #Prints indexed list
             i = 1
             for item in self.backpack:
                 print(str(i) + "). " + item.getName())
@@ -250,6 +260,7 @@ class Player(Animate):
                 except ValueError as e:
                     print("This input must be a number")
             chosenItem = self.backpack[target-1]
+            #Another indexed list
             print("What would you like to do with " + chosenItem + "?")
             print("You can 1). Remove or 2). Equip / Use")
             target = "not an int"
@@ -270,6 +281,7 @@ class Player(Animate):
         if type(item) is Weapon:
             self.weapon = item
         else:
+            #Can't wear two helmets etc.
             i = 0
             for piece in self.armour:
                 if piece.getPlace() == item.getPlace():
@@ -304,6 +316,7 @@ class Player(Animate):
         quit()
 
     def doCommand(self, s, hcs):
+        #Some need to be passed a HardCodedStuff object
         if s in hcs.getCommands() and s != "explore" and s != "target" and s != "go" and s != "search":
             hcs.getCommands()[s]()
         elif s in hcs.getCommands():
@@ -331,7 +344,9 @@ class Enemy(Animate):
         print(self.name + " is dead... Well done!")
         self.target.incrementXP()
         self.target.hits = 0
+        #You gain your enemies money
         self.target.addToMoney(self.money)
+        print("Player now has £" + self.target.getMoney())
         self.dead = True
 
     def getName(self):
@@ -342,13 +357,16 @@ class Enemy(Animate):
 
     def decideNextMove(self):
         luck = random.randint(1, 100)
+        #Only runs one in a hundred times
         if luck % 88 == 0:
             self.run()
         else:
+            #Weighted towards attacking
             if luck > 70:
                 self.defend()
             else:
                 self.attack()
+                
     def run(self):
         print(self.name + " attempts to run from " + self.target.getName())
         luck = random.randint(1, 100)
