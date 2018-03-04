@@ -83,7 +83,7 @@ class Animate:
 class Player(Animate):
     
     def __init__(self, name):
-        super().__init__(name, 1, 15, Weapon("Hands",  5, 0), [Armour(1, "Helmet of Beginner's Luck", 0)], 0)
+        super().__init__(name, 1, 15, Weapon("Hands",  5, 0), [Armour(1, "Helmet of Beginner's Luck", 0, 0)], 0)
         self.level = 1
         self.fullHitPoints = 15
         self.initialHitPoints = 15
@@ -237,8 +237,56 @@ class Player(Animate):
             change += changeIncrement
         self.fullHitPoints = total
 
+    def backpack(self):
+        if self.backpack != []:
+            i = 1
+            for item in self.backpack:
+                print(str(i) + "). " + item.getName())
+                i += 1
+            target = "not an int"
+            while not type(target) is int:
+                try:
+                    target = int(input("Please select an item (Type 0 for none)"))
+                except ValueError as e:
+                    print("This input must be a number")
+            chosenItem = self.backpack[target-1]
+            print("What would you like to do with " + chosenItem + "?")
+            print("You can 1). Remove or 2). Equip / Use")
+            target = "not an int"
+            while not type(target) is int:
+                try:
+                    target = int(input("Please select an option (Type 0 for none"))
+                except ValueError as e:
+                    print("This input must be a number")
+            if target == 1:
+                backpack.remove(chosenItem)
+            if target == 2:
+                if type(chosenItem) is Weapon or type(chosenItem) is Armour:
+                    self.equip(chosenItem)
+                else:
+                    self.use(chosenItem)
+
+    def equip(self, item):
+        if type(item) is Weapon:
+            self.weapon = item
+        else:
+            i = 0
+            for piece in self.armour:
+                if piece.getPlace() == item.getPlace():
+                    self.gain(piece)
+                    self.armour[i] = item
+                    self.backpack.remove(item)
+                    break
+                i += 1
+
+    def use(self, item):
+        if item.getAbility().getTypeOf() == "heal":
+            self.hitPoints += item.getAbility().getVal()
+        else:
+            print("ERROR IN MY CODE SORRY: not aware of this ability")
+
     def helpMe(self):
-        print("Commands to choose from are: explore, go, help, status, attack, run, defend, target, quit")
+        print("Commands to choose from are: explore, go, help, status, attack, run, defend, target, search, backpack and quit")
 
     def getStatus(self):
         print("Your status:")
@@ -249,6 +297,7 @@ class Player(Animate):
         print("\nYour remaining HP: " + str(self.hitPoints))
         print("\nYour level: "+ str(self.level))
         print("\nYour XP: " + str(self.xp))
+        print("\nYour money: " +str(self.money))
 
     def quitIt(self):
         print("Quitting")

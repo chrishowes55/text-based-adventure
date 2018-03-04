@@ -27,6 +27,7 @@ class HardCodedStuff:
             "go": self.player.go,
             "target": self.player.setTarget,
             "search" : self.player.search,
+            "backpack": self.player.backpack,
       } 
 
     def findNewRoom(self, index1, index2, s):
