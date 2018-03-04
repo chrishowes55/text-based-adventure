@@ -1,4 +1,4 @@
-from Inanimates import *
+from Inanimates import Weapon, Armour
 import random
 
 ##Super-class for all animate objects
@@ -34,7 +34,7 @@ class Animate:
     ##All Animate objects have a way of running
     def run(self):
         print(self.name + " attempts to run from " + self.target.getName())
-        luck = random.randing(1, 100)
+        luck = random.randint(1, 100)
         if luck % 2 == 0:
             print(self.name + " has escaped successfully!")
             self.defending = False
@@ -86,8 +86,10 @@ class Animate:
 class Player(Animate):
     
     def __init__(self, name):
-        super().__init__(name, 1, 100, Weapon("Hands",  5), [Armour(1, "Helmet of Beginner's Luck")])
-        self.fullHitPoints = 100
+        super().__init__(name, 1, 100, Weapon("Hands",  5, 0,), [Armour(1, "Helmet of Beginner's Luck", 0)])
+        self.level = 1
+        self.fullHitPoints = 15
+        self.initialHitPoints = 15
     
     def getName(self):
         return self.name
@@ -102,14 +104,14 @@ class Player(Animate):
 
     def run(self):
         print(self.name + " attempts to run from " + self.target.getName())
-        luck = random.randing(1, 100)
+        luck = random.randint(1, 100)
         if luck % 2 == 0:
             print(self.name + " has escaped successfully!")
             self.defending = False
             self.attacking = False
         else:
             print(self.name + "'s escape attempt failed")
-            target.decideMextMove()
+            self.target.decideMextMove()
 
     def go(self, hcs):
         if not self.attacking:
@@ -127,6 +129,15 @@ class Player(Animate):
                         print("This input must be a number")
                 hcs.getContentsOfRoom(self.currentRoom, "list")[target-1].onVisit(self)
         else: print("You cannot go anywhere whilst attacking")
+
+    def search(self, hcs):
+        if not self.attacking:
+            if hcs.getItemsInRoom(self.currentRoom, "list") != [[], [], []]:
+                print("Items in this room: " + hcs.getItemsInRoom(self.currentRoom, "str"))
+                for array in hcs.getItemsInRoom(self.currentRoom, "list"):
+                    for thing in array:
+                        print(self.name + " found " + thing.getName())
+            else: print("There was nothing in this room")
 
     def setTarget(self, hcs):
         if hcs.getEnemiesInRoom(self.currentRoom, "str") != "":
@@ -170,7 +181,24 @@ class Player(Animate):
                 print("Contents of this room: \n" + hcs.getContentsOfRoom(self.currentRoom, "str"))
         else: print("You cannot explore while attacking... Please run away first")
                     
-      
+    def getLevel(self):
+        return self.level
+
+    def incrementLevel(self):
+        self.level += 1
+
+    def getFullHitPoints(self):
+        self.setFullHitPoints()
+        return self.fullHitPoints
+
+    def setFullHitPoints(self):
+        change = 10
+        changeIncrement = 5
+        total = self.initialHitPoints
+        for i in range(1, self.level):
+            total += change
+            change += changeIncrement
+        self.fullHitPoints = total
 
     def helpMe(self):
         print("Commands to choose from are: explore, go, help, status, attack, run, defend, target, quit")
@@ -188,7 +216,7 @@ class Player(Animate):
         quit()
 
     def doCommand(self, s, hcs):
-        if s in hcs.getCommands() and s != "explore" and s != "target" and s != "go":
+        if s in hcs.getCommands() and s != "explore" and s != "target" and s != "go" and s != "search":
             hcs.getCommands()[s]()
         elif s in hcs.getCommands():
             hcs.getCommands()[s](hcs)

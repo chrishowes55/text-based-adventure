@@ -23,7 +23,8 @@ class MiiRecoverii(Place):
                 print("2")
                 time.sleep(1)
                 print("1...Aaaaand voila! You have been healed")
-                player.hitPoints = player.fullHitPoints
+                player.hitPoints = player.getFullHitPoints()
+                print(player.getFullHitPoints())
                 break
             elif heal == "N":
                 print("See you soon then!")
