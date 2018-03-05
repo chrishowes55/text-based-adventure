@@ -85,7 +85,7 @@ class Player(Animate):
         self.levelXPs = [0, 10, 25, 45, 70, 100, 135, 180, 230, 285, 345, 1000000000]
         self.hits = 0
         self.xp = 0
-        self.backpack = [Weapon("Hands", 5, 0), Armour(1, "Helmet of Beginner's Luck", 0)]
+        self.backpack = [Weapon("Hands", 5, 0), Armour(1, "Helmet of Beginner's Luck", 0, 0)]
 
     def getMoney(self):
         return self.money
@@ -144,9 +144,10 @@ class Player(Animate):
             print(self.name + " has escaped successfully!")
             self.defending = False
             self.attacking = False
+            self.target.ranOn()
         else:
             print(self.name + "'s escape attempt failed")
-            self.target.decideMextMove()
+            self.target.decideNextMove()
 
     def go(self, hcs):
         if not self.attacking:
@@ -163,7 +164,7 @@ class Player(Animate):
                         target = int(input("Where would you like to go? (Type 0 for none of these)"))
                     except ValueError as e:
                         print("This input must be a number")
-                hcs.getContentsOfRoom(self.currentRoom, "list")[target-1].onVisit(self)
+                hcs.decidePass(self, target)
         else: print("You cannot go anywhere whilst attacking")
 
     def search(self, hcs):
@@ -217,12 +218,14 @@ class Player(Animate):
                 if hcs.findNewRoom(self.currentRoom, directionInt, "str") != "That was not a valid direction" and hcs.findNewRoom(self.currentRoom, directionInt, "str") != "You cannot go in that direction... Please try again.":
                     choosing = False
                     print(hcs.findNewRoom(self.currentRoom, directionInt, "str"))
-                if hcs.findNewRoom(self.currentRoom, directionInt, "num") != 0:
-                    self.currentRoom = int(hcs.findNewRoom(self.currentRoom, directionInt, "num"))
-                #Does basic housekeeping for new room
-                print("Enemies in this room: \n" + hcs.getEnemiesInRoom(self.currentRoom, "str"))
-                self.setTarget(hcs)
-                print("Contents of this room: \n" + hcs.getContentsOfRoom(self.currentRoom, "str"))
+                else:
+                    print(hcs.findNewRoom(self.currentRoom, directionInt, "str"))
+            if hcs.findNewRoom(self.currentRoom, directionInt, "num") != 0:
+                self.currentRoom = int(hcs.findNewRoom(self.currentRoom, directionInt, "num"))
+            #Does basic housekeeping for new room
+            print("Enemies in this room: \n" + hcs.getEnemiesInRoom(self.currentRoom, "str"))
+            self.setTarget(hcs)
+            print("Contents of this room: \n" + hcs.getContentsOfRoom(self.currentRoom, "str"))
         else: print("You cannot explore while attacking... Please run away first")
                     
     def getLevel(self):
@@ -309,7 +312,7 @@ class Player(Animate):
         print("\nYour remaining HP: " + str(self.hitPoints))
         print("\nYour level: "+ str(self.level))
         print("\nYour XP: " + str(self.xp))
-        print("\nYour money: " +str(self.money))
+        print("\nYour money: $" +str(self.money))
 
     def quitIt(self):
         print("Quitting")
@@ -335,7 +338,11 @@ class Enemy(Animate):
         self.target = player
 
     def getStats(self):
-        return self.name + ": Health: " + str(self.hitPoints)
+        return self.name + ": Health: " + str(self.getHealth())
+
+    def ranOn(self):
+        self.target.hits = 0
+        self.dead = True
 
     def getRoom(self):
         return self.currentRoom
@@ -346,7 +353,7 @@ class Enemy(Animate):
         self.target.hits = 0
         #You gain your enemies money
         self.target.addToMoney(self.money)
-        print("Player now has £" + self.target.getMoney())
+        print("Player now has $" + str(self.target.getMoney()))
         self.dead = True
 
     def getName(self):
