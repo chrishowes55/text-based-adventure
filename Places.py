@@ -104,10 +104,11 @@ class MiiDestroyy(Place):
     def __init__(self, name, enemies, money):
         super().__init__(name)
         self.enemies = enemies
+        self.money = money
 
     def onVisit(self, player, hcs):
         total = 0
-        for enemy in enemies:
+        for enemy in self.enemies:
             print("Your target is now: " + enemy.getName())
             player.makeTarget(enemy)
             while True:
@@ -116,13 +117,15 @@ class MiiDestroyy(Place):
                 if player.isAttacking() == False:
                     total += 1
                     break
-            print("Well done! You've beaten " + str(total) + "enemies so far")
+            print("Well done! You've beaten " + str(total) + " enemies so far")
+            if total == len(self.enemies):
+                break
             st = input("Would you like to continue battling?(Y/N)")
             if st == "N":
                 break
         if total == len(self.enemies):
             print("You beat all the enemies")
-            print("Here, have this reward")
+            print("Here, have this reward of $" + str(self.money))
             player.addToMoney(self.money)
         else:
             print("Good effort... Goodbye for now!")
