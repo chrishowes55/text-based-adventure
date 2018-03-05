@@ -1,5 +1,5 @@
 from Inanimates import Armour, Weapon, Item, Ability, ShopItem
-from Places import MiiRecoverii, MiiBuyy
+from Places import MiiRecoverii, MiiBuyy, MiiDestroyy
 from Animates import Player, Enemy
 
 class HardCodedStuff:
@@ -21,14 +21,18 @@ class HardCodedStuff:
             "attack": self.player.attack,
             "defend": self.player.defend,
             "explore": self.player.explore,
-            "status": self.player.getStatus,
+            "stats": self.player.getStatus,
             "run": self.player.run,
             "quit": self.player.quitIt,
             "go": self.player.go,
             "target": self.player.setTarget,
             "search" : self.player.search,
             "backpack": self.player.backpack,
-      } 
+      }
+
+    def decidePass(self, player, target):
+        if type(self.getContentsOfRoom(player.currentRoom, "list")[target-1]) is MiiDestroyy: self.getContentsOfRoom(player.currentRoom, "list")[target-1].onVisit(player, self)
+        else: self.getContentsOfRoom(player.currentRoom, "list")[target-1].onVisit(player)
 
     def findNewRoom(self, index1, index2, s):
         # N=0, E=1, S=2, W=3
