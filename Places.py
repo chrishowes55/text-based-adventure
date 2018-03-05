@@ -98,3 +98,31 @@ class MiiBuyy(Place):
                         print("This input needs to be a number")
                 player.buy(self.armour[target-1])
             else: print("This shop stocks no armour")
+
+class MiiDestroyy(Place):
+
+    def __init__(self, name, enemies, money):
+        super().__init__(name)
+        self.enemies = enemies
+
+    def onVisit(self, player, hcs):
+        total = 0
+        for enemy in enemies:
+            print("Your target is now: " + enemy.getName())
+            player.makeTarget(enemy)
+            while True:
+                s = input(">>>").lower()
+                player.doCommand(s, hcs)
+                if player.isAttacking() == False:
+                    total += 1
+                    break
+            print("Well done! You've beaten " + str(total) + "enemies so far")
+            st = input("Would you like to continue battling?(Y/N)")
+            if st == "N":
+                break
+        if total == len(self.enemies):
+            print("You beat all the enemies")
+            print("Here, have this reward")
+            player.addToMoney(self.money)
+        else:
+            print("Good effort... Goodbye for now!")
