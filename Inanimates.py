@@ -61,6 +61,18 @@ class ShopItem(Item, Shop):
         Item.__init__(self, name, ability, location)
         Shop.__init__(self, price)
 
+class ShopWeapon(Weapon, Shop):
+
+    def __init__(self, name, damage, location, price):
+        Weapon.__init__(self, name, damage, location)
+        Shop.__init__(self, price)
+
+class ShopArmour(Weapon, Shop):
+
+    def __init__(self, val, name, location, place, price):
+        Weapon.__init__(self, val, name, location, place)
+        Shop.__init__(self, price)
+
 class Ability:
 
     def __init__(self, typeOf, val):
