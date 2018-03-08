@@ -114,12 +114,14 @@ class Player(Animate):
         print("You need another " + str(self.levelXPs[self.level] - self.xp) + " XP to level up")
         
     def attack(self):
-        print(self.name + " attacks " + self.target.getName())
-        self.hits += 1
-        self.attacking = True
-        self.defending = False
-        #Damage given is slightly random
-        self.target.takeDamage(random.randint(self.weapon.getDamage()-2, self.weapon.getDamage()+2))
+        if not self.target.isDead():
+            print(self.name + " attacks " + self.target.getName())
+            self.hits += 1
+            self.attacking = True
+            self.defending = False
+            #Damage given is slightly random
+            self.target.takeDamage(random.randint(self.weapon.getDamage()-2, self.weapon.getDamage()+2))
+        else: print("You cannot attack while target is dead")
     
     def getName(self):
         return self.name
