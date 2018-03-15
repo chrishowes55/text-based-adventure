@@ -1,3 +1,4 @@
+
 from Inanimates import Weapon, Armour
 import random, time
 
@@ -217,18 +218,36 @@ class Player(Animate):
                     directionInt = 4
 
                 #We have gone valid way
-                if hcs.findNewRoom(self.currentRoom, directionInt, "str") != "That was not a valid direction" and hcs.findNewRoom(self.currentRoom, directionInt, "str") != "You cannot go in that direction... Please try again.":
+                if hcs.findNewRoom(self.currentRoom, directionInt, "str", "test") != "That was not a valid direction" and hcs.findNewRoom(self.currentRoom, directionInt, "str", "test") != "You cannot go in that direction... Please try again.":
                     choosing = False
-                    print(hcs.findNewRoom(self.currentRoom, directionInt, "str"))
+                    print(hcs.findNewRoom(self.currentRoom, directionInt, "str", "non"))
                 else:
-                    print(hcs.findNewRoom(self.currentRoom, directionInt, "str"))
-            if hcs.findNewRoom(self.currentRoom, directionInt, "num") != 0:
-                self.currentRoom = int(hcs.findNewRoom(self.currentRoom, directionInt, "num"))
+                    print(hcs.findNewRoom(self.currentRoom, directionInt, "str", "non"))
+            if hcs.findNewRoom(self.currentRoom, directionInt, "num", "test") != 0:
+                self.currentRoom = int(hcs.findNewRoom(self.currentRoom, directionInt, "num", "non"))
             #Does basic housekeeping for new room
             print("Enemies in this room: \n" + hcs.getEnemiesInRoom(self.currentRoom, "str"))
             self.setTarget(hcs)
             print("Contents of this room: \n" + hcs.getContentsOfRoom(self.currentRoom, "str"))
+            print("People in this room: \n" + hcs.getPeopleInRoom(self.currentRoom, "str"))
         else: print("You cannot explore while attacking... Please run away first")
+
+    def talk(self, hcs):
+        if hcs.getPeopleInRoom(self.currentRoom, "str") != "":
+            #Prints indexed list
+            print("You must choose a person to talk to (0 for none)")
+            i = 1
+            for person in hcs.getPeopleInRoom(self.currentRoom, "list"):
+                print(str(i) + "). " + person.getName())
+                i += 1
+            target = "not an int"
+            while not type(target) is int:
+                try:
+                    target = int(input("Who would you like to target?"))
+                except ValueError as e:
+                    print("This input must be a number")
+            if target != 0:
+                hcs.getPeopleInRoom(self.currentRoom, "list")[target-1].doDialogue()
                     
     def getLevel(self):
         return self.level
@@ -322,7 +341,7 @@ class Player(Animate):
 
     def doCommand(self, s, hcs):
         #Some need to be passed a HardCodedStuff object
-        if s in hcs.getCommands() and s != "explore" and s != "target" and s != "go" and s != "search":
+        if s in hcs.getCommands() and s != "explore" and s != "target" and s != "go" and s != "search" and s != "talk":
             hcs.getCommands()[s]()
         elif s in hcs.getCommands():
             hcs.getCommands()[s](hcs)
@@ -403,3 +422,20 @@ class Enemy(Animate):
             self.decideNextMove()
             if self.hitPoints > 1: print(self.name + " has " + str(self.hitPoints) + " hit points remaining")
             else: print(self.name + " has " + str(self.hitPoints) + " hit point remaining")
+
+class NPC(Animate):
+    def __init__(self, name, room, lines):
+        self.name = name
+        self.room = room
+        self.lines = lines
+
+    def getName(self):
+        return self.name
+
+    def getRoom(self):
+        return self.room
+
+    def doDialogue(self):
+        for line in self.lines:
+            print(line)
+            time.sleep(int(len(line.split(" "))/4) + 1)
