@@ -363,20 +363,26 @@ class Player(Animate):
                         )
                     except ValueError:
                         print("This input must be a number")
-                hcs.decide_pass(self, target)
+                hcs.get_contents_of_room(self.current_room, "list")[
+                    target - 1
+                ].on_visit(self)
         else:
             print("You cannot go anywhere whilst attacking")
 
     def search(self, hcs):
         """Search the room and choose whether to collect items."""
         if not self.attacking:
-            if hcs.getItemsInRoom(self.current_room, "list") != [[], [], []]:
+            if hcs.get_items_in_room(self.current_room, "list") != [
+                [],
+                [],
+                [],
+            ]:
                 # Goes through room and finds everything in it
                 print(
                     "Items in this room: "
-                    + hcs.getItemsInRoom(self.current_room, "str")
+                    + hcs.get_items_in_room(self.current_room, "str")
                 )
-                for array in hcs.getItemsInRoom(self.current_room, "list"):
+                for array in hcs.get_items_in_room(self.current_room, "list"):
                     for thing in array:
                         print(self.name + " found " + thing.name)
                         add = input("Add to backpack? (Y/N)").upper()

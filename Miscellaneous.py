@@ -1,10 +1,54 @@
+"""A file containing lots of bits and bobs."""
 from Inanimates import Armour, Weapon, Item, Ability, ShopItem
 from Places import MiiRecoverii, MiiBuyy, MiiDestroyy
 from Animates import Enemy, NPC
 
 
 class HardCodedStuff:
+    """
+    A class containing many of the hard-coded things in the game.
+
+    Attributes
+    ----------
+    player: Player
+        The player (if required)
+    items: list
+        A list of all the different items in the game
+    armour: list
+        A list of all the different armour in the game
+    weapons: list
+        A list of all the different weapons in the game
+    enemies: list
+        A list of all the different enemies in the game
+    people: list
+        A list of all the different NPCs in the game
+    rooms: 2D list
+        A list of all the different rooms in the game (forgot how it works)
+    descriptions: list
+        A list of all the different rooms with descriptions
+
+    Methods
+    -------
+    populate_commands()
+        Map commands to actions
+    find_new_room(index1: int, index2: int, s: str, p: str)
+        Put the player in new room
+    get_stats_armour(index: int)
+        Return the stats of the armour at index
+    get_stats_enemy(index: int)
+        Return the stats of the enemy at index
+    get_enemies_in_room(room: int, return_type: str)
+        Return all of the enemies in the room in a list or str
+    get_people_in_room(room: int, return_type: str)
+        Return all of the NPCs in the room in a list or str
+    get_contents_of_room(room: int, return_type: str)
+        Return the contents of the room
+    get_items_in_room(room: int, return_type: str)
+        Return all of the items in the room
+    """
+
     def __init__(self, _player):
+        """Initialize HardCodedStuff."""
         self.player = _player
         # REMEMBER: MAX ARMOUR VAL MUST BE 200 OR YOU NEED TO CHANGE EARLIER
         # TO MAKE A WEAPON UNDISCOVERABLE BY PLAYER, SET LOCATION TO ZERO
@@ -101,9 +145,10 @@ class HardCodedStuff:
                 [MiiRecoverii("3R")],
             ),
         ]
-        self.populateCommandsDict()
+        self.populate_commands()
 
-    def populateCommandsDict(self):
+    def populate_commands(self):
+        """Facilitate player input by mapping commands to actions."""
         self.commands = {
             "help": self.player.helpMe,
             "attack": self.player.attack,
@@ -119,81 +164,75 @@ class HardCodedStuff:
             "talk": self.player.talk,
         }
 
-    def decide_pass(self, player, target):
-        if (
-            type(
-                self.get_contents_of_room(player.current_room, "list")[
-                    target - 1
-                ]
-            )
-            is MiiDestroyy
-        ):
-            self.get_contents_of_room(player.current_room, "list")[
-                target - 1
-            ].on_visit(player, self)
-        else:
-            self.get_contents_of_room(player.current_room, "list")[
-                target - 1
-            ].on_visit(player)
-
     def find_new_room(self, index1, index2, s, p):
+        """Put the player in the new room."""
         # N=0, E=1, S=2, W=3
         if index2 == 4:
             return "That was not a valid direction"
         room = self.rooms[index1][index2]
         if s == "str":
             # First time visiting show story instead of description
-            if self.descriptions[room].isVisited():
-                return self.descriptions[room].getShortDesc()
+            if self.descriptions[room].visited:
+                return self.descriptions[room].short_desc
             else:
                 if p != "test":
-                    self.descriptions[room].setVisited(True)
-                return self.descriptions[room].getLongDesc()
+                    self.descriptions[room].visited = True
+                return self.descriptions[room].long_desc
         return room
 
-    def getStatsAtIndexInArmourArray(self, index):
-        return self.armour[index].toStats()
+    def get_stats_armour(self, index):
+        """Return the stats of the armour at index."""
+        return self.armour[index].to_stats()
 
-    def getStatsAtIndexInEnemyArray(self, index):
+    def get_stats_enemy(self, index):
+        """Return the stats of the enemy at index."""
         return self.enemies[index].get_stats()
 
-    def get_enemies_in_room(self, room, returnType):
+    def get_enemies_in_room(self, room, return_type):
+        """Return all of the enemies in the room in a list or str."""
         returns = []
         for enemy in self.enemies:
             if not enemy.dead:
                 if enemy.current_room == room:
-                    if returnType == "str":
+                    if return_type == "str":
                         returns.append(enemy.get_stats())
                     else:
                         returns.append(enemy)
-        if returnType == "str":
+        if return_type == "str":
             return str(returns)[1:-1]
         return returns
 
-    def get_people_in_room(self, room, returnType):
+    def get_people_in_room(self, room, return_type):
+        """Return all of the NPCs in the room in a list or str."""
         returns = []
         for person in self.people:
             if person.current_room == room:
-                if returnType == "str":
+                if return_type == "str":
                     returns.append(person.name)
                 else:
                     returns.append(person)
-        if returnType == "str":
+        if return_type == "str":
             return str(returns)[1:-1]
         return returns
 
-    def get_contents_of_room(self, room, returnType):
+    def get_contents_of_room(self, room, return_type):
+        """Return the contents of the room, ie MiiRecoverii..."""
         returns = []
-        for place in self.descriptions[room].getContents():
-            if returnType == "str":
+        for place in self.descriptions[room].contents:
+            if return_type == "str":
                 returns.append(place.name)
             else:
                 returns.append(place)
-        if returnType == "str":
+        if return_type == "str":
             return str(returns)[1:-1]
         return returns
 
-    def getItemsInRoom(self, room, returnType):
+    def get_items_in_room(self, room, return_type):
+        """
+        Return all of the items in the room in a 2D array or str.
+
+        Array in form [items, weapons, armour]
+        """
         # Return in one 2d array for ease
         pieces = []
         stabs = []
@@ -201,23 +240,23 @@ class HardCodedStuff:
         returns = []
         for piece in self.armour:
             if piece.location == room:
-                if returnType == "str":
+                if return_type == "str":
                     returns.append(piece.name)
                 else:
                     returns.append(piece)
         for weapon in self.weapons:
             if weapon.location == room:
-                if returnType == "str":
+                if return_type == "str":
                     stabs.append(weapon.name)
                 else:
                     stabs.append(weapon)
         for item in self.items:
             if item.location == room:
-                if returnType == "str":
+                if return_type == "str":
                     stuffs.append(item.name)
                 else:
                     stuffs.append(item)
-        if returnType == "str":
+        if return_type == "str":
             return (
                 "Armour: "
                 + str(pieces)[1:-1]
@@ -230,23 +269,24 @@ class HardCodedStuff:
 
 
 class Room:
-    def __init__(self, shortDesc, longDesc, contents):
-        self.shortDesc = shortDesc
-        self.longDesc = longDesc
+    """
+    A class to represent a room.
+
+    Attributes
+    ----------
+    short_desc: str
+        A short description of the room
+    long_desc: str
+        A long description of the room
+    contents: list
+        A list of the contents of the room (ie MiiRecoverii...)
+    visited: bool
+        A boolean to show if the room has been visited before
+    """
+
+    def __init__(self, short_desc, long_desc, contents):
+        """Initialize the room."""
+        self.short_desc = short_desc
+        self.long_desc = long_desc
         self.contents = contents
         self.visited = False
-
-    def isVisited(self):
-        return self.visited
-
-    def setVisited(self, boolean):
-        self.visited = boolean
-
-    def getShortDesc(self):
-        return self.shortDesc
-
-    def getLongDesc(self):
-        return self.longDesc
-
-    def getContents(self):
-        return self.contents
