@@ -1,6 +1,5 @@
 """Contains all classes for animates."""
 from Inanimates import Weapon, Armour
-from Miscellaneous import HardCodedStuff
 import random
 import time
 
@@ -71,7 +70,7 @@ class Animate:
         Then forces the target to take random damage in an interval
         """
         print(self.name + " attacks " + self.target.name)
-        if self.hits:
+        if hasattr(self, "hits"):
             self.hits += 1
         self.attacking = True
         self.defending = False
@@ -242,7 +241,7 @@ class Player(Animate):
         Calculate and return the full hit points of the player.
     set_full_hit_points()
         Calculate the full hit points of the player.
-    backpack()
+    get_backpack()
         Print out the contents of the backpack.
     equip(item: Inanimate)
         Equip an item.
@@ -334,13 +333,12 @@ class Player(Animate):
         print("You died... please restart")
         self.quit_it()
 
-    def go(self):
+    def go(self, hcs):
         """
         Go somewhere in the room.
 
         Cannot go anywhere while attacking.
         """
-        hcs = HardCodedStuff()
         if not self.attacking:
             if hcs.get_contents_of_room(self.current_room, "str") != "":
                 # Fairly common construct in this code - prints an indexed
@@ -363,9 +361,7 @@ class Player(Animate):
                         )
                     except ValueError:
                         print("This input must be a number")
-                hcs.get_contents_of_room(self.current_room, "list")[
-                    target - 1
-                ].on_visit(self)
+                hcs.decide_pass(self, target)
         else:
             print("You cannot go anywhere whilst attacking")
 
@@ -392,9 +388,8 @@ class Player(Animate):
             else:
                 print("There was nothing in this room")
 
-    def set_target(self):
+    def set_target(self, hcs):
         """Set the target of the player."""
-        hcs = HardCodedStuff()
         if hcs.get_enemies_in_room(self.current_room, "str") != "":
             # Prints indexed list
             print("You must choose an enemy to target")
@@ -413,9 +408,8 @@ class Player(Animate):
             ]
             self.attacking = True
 
-    def explore(self):
+    def explore(self, hcs):
         """Move to a new room."""
-        hcs = HardCodedStuff()
         if not self.attacking:
             choosing = True
             while choosing:
@@ -471,7 +465,7 @@ class Player(Animate):
                 "Enemies in this room: \n"
                 + hcs.get_enemies_in_room(self.current_room, "str")
             )
-            self.set_target()
+            self.set_target(hcs)
             print(
                 "Contents of this room: \n"
                 + hcs.get_contents_of_room(self.current_room, "str")
@@ -485,9 +479,8 @@ class Player(Animate):
                 "You cannot explore while attacking... Please run away first"
             )
 
-    def talk(self):
+    def talk(self, hcs):
         """Talk to any NPCs in the room."""
-        hcs = HardCodedStuff()
         if hcs.get_people_in_room(self.current_room, "str") != "":
             # Prints indexed list
             print("You must choose a person to talk to (0 for none)")
@@ -531,7 +524,7 @@ class Player(Animate):
             change += change_increment
         self.full_hit_points = total
 
-    def backpack(self):
+    def get_backpack(self):
         """Print out the contents of the backpack."""
         if self.backpack != []:
             # Prints indexed list
@@ -547,9 +540,11 @@ class Player(Animate):
                     )
                 except ValueError:
                     print("This input must be a number")
+            if target == 0:
+                return
             chosen_item = self.backpack[target - 1]
             # Another indexed list
-            print("What would you like to do with " + chosen_item + "?")
+            print("What would you like to do with " + chosen_item.name + "?")
             print("You can 1). Remove or 2). Equip / Use")
             target = "not an int"
             while not type(target) is int:
@@ -595,8 +590,8 @@ class Player(Animate):
     def help_me(self):
         """Get help with available inputs."""
         print(
-            "Commands to choose from are: explore, go, help, status, attack, \
-                run, defend, target, search, backpack and quit"
+            "Commands to choose from are: explore, go, help, status, attack, "
+            + "run, defend, target, search, backpack and quit"
         )
 
     def get_status(self):
@@ -616,11 +611,18 @@ class Player(Animate):
         print("Quitting")
         quit()
 
-    def do_command(self, s):
+    def do_command(self, s, hcs):
         """Carry out the requested command."""
-        hcs = HardCodedStuff()
-        if s in hcs.commands:
+        if (
+            s in hcs.commands
+            and s != "explore"
+            and s != "target"
+            and s != "go"
+            and s != "search"
+        ):
             hcs.commands[s]()
+        elif s in hcs.commands:
+            hcs.commands[s](hcs)
         else:
             print("Invalid input... Please try again")
 

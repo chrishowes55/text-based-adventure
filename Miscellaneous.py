@@ -116,8 +116,8 @@ class HardCodedStuff:
                 [],
             ),
             Room(
-                "This is where you were created... The Mii Creation Screen\
-                      where you, the saviour of your kind, were born",
+                "This is where you were created... The Mii Creation Screen "
+                + "where you, the saviour of your kind, were born",
                 "NEVER APPEARS",
                 [
                     MiiRecoverii("1R"),
@@ -132,15 +132,15 @@ class HardCodedStuff:
             ),
             Room(
                 "A little room that houses Master Ozana",
-                "You see a small, grey room in front of you. In the middle of \
-                    the room stands Master Ozana, but he tells you you must \
-                        defeat the enemy in front of him to be worthy of his \
-                            time",
+                "You see a small, grey room in front of you. In the middle of "
+                + "the room stands Master Ozana, but he tells you you must "
+                + "defeat the enemy in front of him to be worthy of his "
+                + "time",
                 [MiiRecoverii("2R")],
             ),
             Room(
-                "This is where you were created... The Mii Creation Screen \
-                    where you, the saviour of your kind, were born3",
+                "This is where you were created... The Mii Creation Screen "
+                + "where you, the saviour of your kind, were born3",
                 "Story3",
                 [MiiRecoverii("3R")],
             ),
@@ -150,17 +150,17 @@ class HardCodedStuff:
     def populate_commands(self):
         """Facilitate player input by mapping commands to actions."""
         self.commands = {
-            "help": self.player.helpMe,
+            "help": self.player.help_me,
             "attack": self.player.attack,
             "defend": self.player.defend,
             "explore": self.player.explore,
-            "stats": self.player.getStatus,
+            "stats": self.player.get_status,
             "run": self.player.run,
-            "quit": self.player.quitIt,
+            "quit": self.player.quit_it,
             "go": self.player.go,
-            "target": self.player.setTarget,
+            "target": self.player.set_target,
             "search": self.player.search,
-            "backpack": self.player.backpack,
+            "backpack": self.player.get_backpack,
             "talk": self.player.talk,
         }
 
@@ -206,7 +206,7 @@ class HardCodedStuff:
         """Return all of the NPCs in the room in a list or str."""
         returns = []
         for person in self.people:
-            if person.current_room == room:
+            if person.room == room:
                 if return_type == "str":
                     returns.append(person.name)
                 else:
@@ -266,6 +266,24 @@ class HardCodedStuff:
                 + str(stuffs)[1:-1]
             )
         return [pieces, stabs, stuffs]
+
+    def decide_pass(self, player, target):
+        """Annoying method."""
+        if (
+            type(
+                self.get_contents_of_room(player.current_room, "list")[
+                    target - 1
+                ]
+            )
+            is MiiDestroyy
+        ):
+            self.get_contents_of_room(player.current_room, "list")[
+                target - 1
+            ].on_visit(player, self)
+        else:
+            self.get_contents_of_room(player.current_room, "list")[
+                target - 1
+            ].on_visit(player)
 
 
 class Room:

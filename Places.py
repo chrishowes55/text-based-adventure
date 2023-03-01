@@ -1,6 +1,5 @@
 """File containing all place-related classes."""
 import time
-from Miscellaneous import HardCodedStuff
 
 
 class Place:
@@ -50,8 +49,8 @@ class MiiRecoverii(Place):
                 print("2")
                 time.sleep(1)
                 print("1...Aaaaand voila! You have been healed")
-                player.hitPoints = player.getFullHitPoints()
-                print("Your health is now " + str(player.getFullHitPoints()))
+                player.hit_points = player.full_hit_points
+                print("Your health is now " + str(player.full_hit_points))
                 break
             elif heal == "N":
                 print("See you soon then!")
@@ -124,8 +123,8 @@ class MiiBuyy(Place):
                 try:
                     target = int(
                         input(
-                            "Which would you like to buy? \
-                                (Type 0 for none)"
+                            "Which would you like to buy? "
+                            + "(Type 0 for none)"
                         )
                     )
                 except ValueError:
@@ -160,17 +159,16 @@ class MiiDestroyy(Place):
         self.enemies = enemies
         self.money = money
 
-    def on_visit(self, player):
+    def on_visit(self, player, hcs):
         """Do the correct output when player visits."""
-        hcs = HardCodedStuff()
         total = 0
         for enemy in self.enemies:
             print("Your target is now: " + enemy.name)
             player.target = enemy
             while True:
                 s = input(">>>").lower()
-                player.doCommand(s, hcs)
-                if not player.isAttacking():
+                player.do_command(s, hcs)
+                if not player.attacking:
                     total += 1
                     break
             print("Well done! You've beaten " + str(total) + " enemies so far")
