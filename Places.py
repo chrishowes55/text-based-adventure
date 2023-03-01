@@ -1,16 +1,44 @@
+"""File containing all place-related classes."""
 import time
+from Miscellaneous import HardCodedStuff
 
 
 class Place:
+    """
+    Class to represent a place.
+
+    Attributes
+    ----------
+    name: str
+        The name of the place
+    """
+
     def __init__(self, name):
+        """Initialize the place."""
         self.name = name
 
 
 class MiiRecoverii(Place):
+    """
+    Class to represent MiiRecoverii - a place to heal.
+
+    Attributes
+    ----------
+    name: str
+        Name of the MiiRecoverii
+
+    Methods
+    -------
+    on_visit(player: Player)
+        Do the correct output when player visits
+    """
+
     def __init__(self, name):
+        """Initialize the MiiRecoverii."""
         super().__init__(name)
 
-    def onVisit(self, player):
+    def on_visit(self, player):
+        """Do the correct output when player visits."""
         # Loop so we can deal with bad typers
         while True:
             heal = input(
@@ -33,116 +61,108 @@ class MiiRecoverii(Place):
 
 
 class MiiBuyy(Place):
+    """
+    Class to represent MiiBuyy - a place to shop.
+
+    Attributes
+    ----------
+    name: str
+        Name of the MiiBuyy
+    items: list
+        A list of the items in the shop
+    weapons: list
+        A list of the weapons in the shop
+    armour: list
+        A list of the armour in the shop
+
+    Methods
+    -------
+    on_visit(player: Player)
+        Do the correct output when player visits
+    """
+
     def __init__(self, name, items, weapons, armour):
+        """Initialize the MiiBuyy."""
         super().__init__(name)
         self.items = items
         self.weapons = weapons
         self.armour = armour
 
-    def onVisit(self, player):
+    def on_visit(self, player):
+        """Do the correct output when player visits."""
         # Loop for bad typers
         choosing = True
         while choosing:
             choice = input(
                 "Are you shopping for items, weapons or armour?"
             ).lower()
-            if choice == "items" or choice == "weapons" or choice == "armour":
+            if choice == "items":
+                chosen = self.items
                 choosing = False
-        if choice == "items":
-            if self.items != []:
-                # Print indexed list
-                print("Choose an item to buy!")
-                i = 1
-                for item in self.items:
-                    print(
-                        str(i)
-                        + "). "
-                        + item.name
-                        + ", Price: "
-                        + str(item.price)
-                    )
-                    i += 1
-                target = "not an int"
-                while not type(target) is int:
-                    try:
-                        target = int(
-                            input(
-                                "Which would you like to buy? \
-                                    (Type 0 for none)"
-                            )
-                        )
-                    except ValueError:
-                        print("This input needs to be a number")
-                player.buy(self.items[target - 1])
-            else:
-                print("This shop stocks no items")
+            elif choice == "weapons":
+                chosen = self.weapons
+                choosing = False
+            elif choice == "armour":
+                chosen = self.armour
+                choosing = False
 
-        if choice == "weapons":
-            if self.weapons != []:
-                # Print indexed list
-                print("Choose an item to buy!")
-                i = 1
-                for weapon in self.weapons:
-                    print(
-                        str(i)
-                        + "). "
-                        + weapon.name
-                        + ", Price: "
-                        + str(weapon.price)
-                    )
-                    i += 1
-                target = "not an int"
-                while not type(target) is int:
-                    try:
-                        target = int(
-                            input(
-                                "Which would you like to buy? \
-                                    (Type 0 for none)"
-                            )
+        if chosen != []:
+            # Print indexed list
+            print("Choose an item to buy!")
+            i = 1
+            for thing in chosen:
+                print(
+                    str(i)
+                    + "). "
+                    + thing.name
+                    + ", Price: "
+                    + str(thing.price)
+                )
+                i += 1
+            target = "not an int"
+            while not type(target) is int:
+                try:
+                    target = int(
+                        input(
+                            "Which would you like to buy? \
+                                (Type 0 for none)"
                         )
-                    except ValueError:
-                        print("This input needs to be a number")
-                player.buy(self.weapons[target - 1])
-            else:
-                print("This shop stocks no weapons")
-
-        if choice == "armour":
-            if self.armour != []:
-                print("Choose an item to buy!")
-                # Print indexed list
-                i = 1
-                for piece in self.armour:
-                    print(
-                        str(i)
-                        + "). "
-                        + piece.name
-                        + ", Price: "
-                        + str(piece.price)
                     )
-                    i += 1
-                target = "not an int"
-                while not type(target) is int:
-                    try:
-                        target = int(
-                            input(
-                                "Which would you like to buy? \
-                                    (Type 0 for none)"
-                            )
-                        )
-                    except ValueError:
-                        print("This input needs to be a number")
-                player.buy(self.armour[target - 1])
-            else:
-                print("This shop stocks no armour")
+                except ValueError:
+                    print("This input needs to be a number")
+            player.buy(chosen[target - 1])
+        else:
+            print("This shop stocks no " + choice)
 
 
 class MiiDestroyy(Place):
+    """
+    Class to represent MiiDestroyy - a place to fight.
+
+    Attributes
+    ----------
+    name: str
+        Name of the MiiDestroyy
+    items: list
+        A list of the enemies in the MiiDestroyy
+    money: int
+        The reward for killing all of the enemies
+
+    Methods
+    -------
+    on_visit(player: Player)
+        Do the correct output when player visits
+    """
+
     def __init__(self, name, enemies, money):
+        """Initialize the MiiDestroyy."""
         super().__init__(name)
         self.enemies = enemies
         self.money = money
 
-    def onVisit(self, player, hcs):
+    def on_visit(self, player):
+        """Do the correct output when player visits."""
+        hcs = HardCodedStuff()
         total = 0
         for enemy in self.enemies:
             print("Your target is now: " + enemy.name)

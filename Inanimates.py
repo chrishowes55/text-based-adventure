@@ -102,7 +102,7 @@ class Item(Inanimate):
 
 class Shop:
     """
-    Class to represent a shop.
+    Class to represent something in a shop.
 
     MAY NEED RETHINKINg
 

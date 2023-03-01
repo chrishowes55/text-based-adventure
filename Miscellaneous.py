@@ -130,11 +130,11 @@ class HardCodedStuff:
         ):
             self.get_contents_of_room(player.current_room, "list")[
                 target - 1
-            ].onVisit(player, self)
+            ].on_visit(player, self)
         else:
             self.get_contents_of_room(player.current_room, "list")[
                 target - 1
-            ].onVisit(player)
+            ].on_visit(player)
 
     def find_new_room(self, index1, index2, s, p):
         # N=0, E=1, S=2, W=3
