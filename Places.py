@@ -5,9 +5,6 @@ class Place:
     def __init__(self, name):
         self.name = name
 
-    def getName(self):
-        return self.name
-
 
 class MiiRecoverii(Place):
     def __init__(self, name):
@@ -60,7 +57,7 @@ class MiiBuyy(Place):
                     print(
                         str(i)
                         + "). "
-                        + item.getName()
+                        + item.name
                         + ", Price: "
                         + str(item.getPrice())
                     )
@@ -89,7 +86,7 @@ class MiiBuyy(Place):
                     print(
                         str(i)
                         + "). "
-                        + weapon.getName()
+                        + weapon.name
                         + ", Price: "
                         + str(weapon.getPrice())
                     )
@@ -118,7 +115,7 @@ class MiiBuyy(Place):
                     print(
                         str(i)
                         + "). "
-                        + piece.getName()
+                        + piece.name
                         + ", Price: "
                         + str(piece.getPrice())
                     )
@@ -148,8 +145,8 @@ class MiiDestroyy(Place):
     def onVisit(self, player, hcs):
         total = 0
         for enemy in self.enemies:
-            print("Your target is now: " + enemy.getName())
-            player.makeTarget(enemy)
+            print("Your target is now: " + enemy.name)
+            player.target = enemy
             while True:
                 s = input(">>>").lower()
                 player.doCommand(s, hcs)
@@ -165,6 +162,6 @@ class MiiDestroyy(Place):
         if total == len(self.enemies):
             print("You beat all the enemies")
             print("Here, have this reward of $" + str(self.money))
-            player.addToMoney(self.money)
+            player.money += self.money
         else:
             print("Good effort... Goodbye for now!")

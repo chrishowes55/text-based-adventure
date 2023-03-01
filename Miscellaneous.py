@@ -119,22 +119,24 @@ class HardCodedStuff:
             "talk": self.player.talk,
         }
 
-    def decidePass(self, player, target):
+    def decide_pass(self, player, target):
         if (
             type(
-                self.getContentsOfRoom(player.currentRoom, "list")[target - 1]
+                self.get_contents_of_room(player.current_room, "list")[
+                    target - 1
+                ]
             )
             is MiiDestroyy
         ):
-            self.getContentsOfRoom(player.currentRoom, "list")[
+            self.get_contents_of_room(player.current_room, "list")[
                 target - 1
             ].onVisit(player, self)
         else:
-            self.getContentsOfRoom(player.currentRoom, "list")[
+            self.get_contents_of_room(player.current_room, "list")[
                 target - 1
             ].onVisit(player)
 
-    def findNewRoom(self, index1, index2, s, p):
+    def find_new_room(self, index1, index2, s, p):
         # N=0, E=1, S=2, W=3
         if index2 == 4:
             return "That was not a valid direction"
@@ -149,45 +151,42 @@ class HardCodedStuff:
                 return self.descriptions[room].getLongDesc()
         return room
 
-    def getCommands(self):
-        return self.commands
-
     def getStatsAtIndexInArmourArray(self, index):
         return self.armour[index].toStats()
 
     def getStatsAtIndexInEnemyArray(self, index):
-        return self.enemies[index].getStats()
+        return self.enemies[index].get_stats()
 
-    def getEnemiesInRoom(self, room, returnType):
+    def get_enemies_in_room(self, room, returnType):
         returns = []
         for enemy in self.enemies:
-            if not enemy.isDead():
-                if enemy.getRoom() == room:
+            if not enemy.dead:
+                if enemy.current_room == room:
                     if returnType == "str":
-                        returns.append(enemy.getStats())
+                        returns.append(enemy.get_stats())
                     else:
                         returns.append(enemy)
         if returnType == "str":
             return str(returns)[1:-1]
         return returns
 
-    def getPeopleInRoom(self, room, returnType):
+    def get_people_in_room(self, room, returnType):
         returns = []
         for person in self.people:
-            if person.getRoom() == room:
+            if person.current_room == room:
                 if returnType == "str":
-                    returns.append(person.getName())
+                    returns.append(person.name)
                 else:
                     returns.append(person)
         if returnType == "str":
             return str(returns)[1:-1]
         return returns
 
-    def getContentsOfRoom(self, room, returnType):
+    def get_contents_of_room(self, room, returnType):
         returns = []
         for place in self.descriptions[room].getContents():
             if returnType == "str":
-                returns.append(place.getName())
+                returns.append(place.name)
             else:
                 returns.append(place)
         if returnType == "str":
@@ -203,19 +202,19 @@ class HardCodedStuff:
         for piece in self.armour:
             if piece.getLocation() == room:
                 if returnType == "str":
-                    returns.append(piece.getName())
+                    returns.append(piece.name)
                 else:
                     returns.append(piece)
         for weapon in self.weapons:
             if weapon.getLocation() == room:
                 if returnType == "str":
-                    stabs.append(weapon.getName())
+                    stabs.append(weapon.name)
                 else:
                     stabs.append(weapon)
         for item in self.items:
             if item.getLocation() == room:
                 if returnType == "str":
-                    stuffs.append(item.getName())
+                    stuffs.append(item.name)
                 else:
                     stuffs.append(item)
         if returnType == "str":

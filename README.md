@@ -8,5 +8,8 @@
 * Please don't copyright strike me Nintendo
 
 ### TODOs
+* Docstrings!
+* Avoid hard-codeds outside of hard-coded arrays
 * Implement ShopWeapons, ShopArmour
 * Add more things to hard-coded arrays
+* Enemies can heal?
