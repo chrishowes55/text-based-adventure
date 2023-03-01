@@ -13,3 +13,4 @@
 * Implement ShopWeapons, ShopArmour
 * Add more things to hard-coded arrays
 * Enemies can heal?
+* Rethink shop system

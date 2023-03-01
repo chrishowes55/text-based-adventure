@@ -200,19 +200,19 @@ class HardCodedStuff:
         stuffs = []
         returns = []
         for piece in self.armour:
-            if piece.getLocation() == room:
+            if piece.location == room:
                 if returnType == "str":
                     returns.append(piece.name)
                 else:
                     returns.append(piece)
         for weapon in self.weapons:
-            if weapon.getLocation() == room:
+            if weapon.location == room:
                 if returnType == "str":
                     stabs.append(weapon.name)
                 else:
                     stabs.append(weapon)
         for item in self.items:
-            if item.getLocation() == room:
+            if item.location == room:
                 if returnType == "str":
                     stuffs.append(item.name)
                 else:

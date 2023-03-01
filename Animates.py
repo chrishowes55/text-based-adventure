@@ -292,11 +292,11 @@ class Player(Animate):
 
     def buy(self, item):
         """Buy an item."""
-        if item.getPrice() - self.money > 0:
+        if item.price - self.money > 0:
             print("You cannot buy this")
         else:
             print("Item bought!")
-            self.money -= item.getPrice()
+            self.money -= item.price
             self.backpack.append(item)
 
     def increment_xp(self):
@@ -569,7 +569,7 @@ class Player(Animate):
             # Can't wear two helmets etc.
             i = 0
             for piece in self.armour:
-                if piece.getPlace() == item.getPlace():
+                if piece.place == item.place:
                     self.backpack.append(piece)
                     self.armour[i] = item
                     self.armour_protection = self.calculate_armour_protection()
@@ -581,7 +581,7 @@ class Player(Animate):
 
     def use(self, item):
         """Use an item."""
-        if item.ability.typeOf == "heal":
+        if item.ability.type_of == "heal":
             self.hit_points += item.ability.val
         else:
             print("ERROR IN MY CODE SORRY: not aware of this ability")

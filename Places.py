@@ -59,7 +59,7 @@ class MiiBuyy(Place):
                         + "). "
                         + item.name
                         + ", Price: "
-                        + str(item.getPrice())
+                        + str(item.price)
                     )
                     i += 1
                 target = "not an int"
@@ -88,7 +88,7 @@ class MiiBuyy(Place):
                         + "). "
                         + weapon.name
                         + ", Price: "
-                        + str(weapon.getPrice())
+                        + str(weapon.price)
                     )
                     i += 1
                 target = "not an int"
@@ -117,7 +117,7 @@ class MiiBuyy(Place):
                         + "). "
                         + piece.name
                         + ", Price: "
-                        + str(piece.getPrice())
+                        + str(piece.price)
                     )
                     i += 1
                 target = "not an int"
